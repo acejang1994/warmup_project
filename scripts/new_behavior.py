@@ -16,16 +16,13 @@ class FollowContour(object):
         """ Initialize a node with the specified target distance
             from the forward obstacle """
         rospy.init_node('contour_obstacle')
-        init_speed = 0
+
         self.twist = Twist()
         self.twist.linear.x = 0.5
+
         self.target_distance = 0.5
         self.target_angle = math.pi/3
-        self.actual_distance = 0
         self.foundObstacle= False
-        self.point= None
-        # self.angle_centroid = None
-        # self.dist_centroid = None
         self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.pubToViz = rospy.Publisher('/centroid', PointStamped, queue_size=10)
         rospy.Subscriber('/scan', LaserScan, self.callbackScan)
@@ -42,7 +39,6 @@ class FollowContour(object):
         angle_centroid= 0
         dist_centroid = 0
         centroid = 0
-        # for i in range(-180, 180):
         for i in range(-90, 90):
             if self.ranges[i] <= .8 and self.ranges[i]>0:
                 locationX = self.ranges[i]*math.cos(i*math.pi/180.0)
@@ -57,34 +53,25 @@ class FollowContour(object):
             angle_centroid = math.atan(centroid[1]/centroid[0])
             self.point = PointStamped(point=Point(x=centroid[0], y=centroid[1]), header=Header(stamp=rospy.Time.now(), frame_id='base_laser_link'))
 
+        #checking if it found an obstacle and make it go forward as a default.
         self.found_obstacle(dist_centroid, angle_centroid)
         self.twist.angular.z = 0   
-
         self.twist.linear.x = math.fabs(dist_centroid - self.target_distance)
         
-
         if self.foundObstacle:
             self.twist.angular.z = (angle_centroid - self.target_angle)
         else:
+        #if it lost a signal it will go left.
             self.twist.linear.x = 0
             self.twist.angular.z = .2
-
-            print "stop if i dont find it"
-
-        print "angle", angle_centroid*180.0/math.pi, "angle diff",(angle_centroid - self.target_angle)*180.0/math.pi
-        print "distance", dist_centroid, "dist diff", dist_centroid - self.target_distance
-        print "bool", self.foundObstacle
-        print "new"
-
+       
     def found_obstacle(self, dist_centroid, angle_centroid):
 
         if dist_centroid < self.target_distance and dist_centroid != 0:
             self.foundObstacle=True
         else:
             self.foundObstacle =False
-        # if angle_centroid == 0 and dist_centroid == 0:
-        #     self.foundObstacle=False
-
+       
     def run(self):
         """ Our main 5Hz run loop """
         r = rospy.Rate(5)

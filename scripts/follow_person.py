@@ -46,7 +46,7 @@ class FollowPerson(object):
                 objectdict[i] = [locationX, locationY]
                 sumx += locationX
                 sumy += locationY
-                # print(objectdict)
+          
         if not len(objectdict) ==0:
             centroid = [-sumx/len(objectdict), -sumy/len(objectdict)]
             self.dist_centroid = math.sqrt((centroid[0]**2+centroid[1]**2))
@@ -55,9 +55,7 @@ class FollowPerson(object):
 
         self.twist.angular.z = self.angle_centroid*1
         self.twist.linear.x =(self.dist_centroid - self.target_distance) * 1
-        print self.twist.angular.z
-        print self.twist.linear.x
-
+        
     def run(self):
         """ Our main 5Hz run loop """
 

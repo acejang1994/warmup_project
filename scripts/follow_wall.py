@@ -18,7 +18,6 @@ class FollowWall(object):
         init_speed = 0
         
         self.twist = Twist()
-        # self.target_distance = rospy.get_param('~target_distance')
         self.target_distance = .5
         self.actual_distance = 0
 
@@ -50,13 +49,10 @@ class FollowWall(object):
             self.twist.angular.z = .2* self.diff
             self.twist.linear.x = 0
 
-            print "diff", math.fabs(self.diff)
             if math.fabs(self.diff) < .1 and math.fabs(self.diff) > 0.0:
                 self.twist.linear.x = .1
                 self.twist.angular.z = 0
             
-
-
     def run(self):
         """ Our main 5Hz run loop """
 
